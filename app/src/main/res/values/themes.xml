@@ -1,0 +1,25 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Mazaady" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+        <item name="customTextInputStyle">@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu</item>
+
+    </style>
+
+    <style name="Theme.Mazaady" parent="Base.Theme.Mazaady" />
+
+    <style name="White" parent="Theme.AppCompat.DayNight">
+        <item name="background">@drawable/button_one_gradient</item>
+    </style>
+
+    <attr name="customTextInputStyle" format="reference" />
+
+    <style name="progressIndicator">
+        <item name="android:indeterminate">true</item>
+        <item name="android:visibility">invisible</item>
+        <item name="indicatorColor">@color/razzmatazz</item>
+        <item name="trackColor">@color/grape</item>
+    </style>
+</resources>
