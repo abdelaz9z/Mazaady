@@ -22,13 +22,14 @@ import com.mazaady.mazaady.ui.AuctionDetailsActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     private val viewModel: MainViewModel by viewModels()
+
+    var b: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         // choose the driver is not null
         assert(textInputLayout.editText != null)
         val searchableSpinner = SearchableSpinner(this)
-        searchableSpinner.windowTitle = getString(R.string.main_category)
+        searchableSpinner.windowTitle = getString(com.mazaady.mazaady.R.string.main_category)
 
         // Finding the Set of keys from
         // the HashMap
@@ -122,7 +123,6 @@ class MainActivity : AppCompatActivity() {
         // Creating an ArrayList of keys
         // by passing the keySet
         val listOfKeys = ArrayList(keySet)
-        listOfKeys.add(getString(R.string.other))
 
         if (hashMap.size <= 0) {
             Log.i(TAG, "searchableSpinnerInitialization: is empty")
@@ -146,6 +146,14 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             Log.e(TAG, "Selected (sub-category -> options -> id): $selected")
                             selected?.let { viewModel.getOption(selected) }
+
+                            val hint = textInputLayout.hint.toString()
+                            if (hint == "brand") {
+                                val et = findViewById<LinearLayout>(R.id.linearLayoutID)
+                                et.removeAllViews()
+                            }
+
+                            b = true
                         }
                     }
                 }
@@ -172,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         // choose the driver is not null
         assert(textInputLayout.editText != null)
         val searchableSpinner = SearchableSpinner(this)
-        searchableSpinner.windowTitle = getString(R.string.main_category)
+        searchableSpinner.windowTitle = getString(com.mazaady.mazaady.R.string.main_category)
 
         // Finding the Set of keys from
         // the HashMap
@@ -186,7 +194,6 @@ class MainActivity : AppCompatActivity() {
         // Creating an ArrayList of keys
         // by passing the keySet
         val listOfKeys = ArrayList(keySet)
-        listOfKeys.add(getString(R.string.other))
 
         searchableSpinner.setSpinnerListItems(listOfKeys)
         searchableSpinner.onItemSelectListener =
@@ -224,6 +231,7 @@ class MainActivity : AppCompatActivity() {
      * @param arrayList option
      */
     private fun setupTextInputLayout(hintText: String, arrayList: List<Option>) {
+        val et = findViewById<LinearLayout>(R.id.linearLayoutID)
         val optionHashMap: HashMap<String, Int> = HashMap()
 
         for (option in arrayList) {
@@ -231,7 +239,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         val tInput1 = addTextInputLayout(hintText, arrayList)
-        binding.linearLayout.addView(tInput1)
+
+        if (b) {
+            et.addView(tInput1)
+            b = false
+        } else {
+            if (hintText == "brand") {
+                binding.linearLayout.addView(tInput1)
+                val createLinearLayout = createLinearLayout()
+                binding.linearLayout.addView(createLinearLayout)
+            } else {
+                binding.linearLayout.addView(tInput1)
+            }
+        }
 
         searchableSpinnerInitialization(tInput1, optionHashMap, false)
     }
@@ -256,7 +276,7 @@ class MainActivity : AppCompatActivity() {
                 com.leo.searchablespinner.R.style.Base_Widget_AppCompat_EditText
             )
         } else {
-            TextInputLayout(this, null, R.attr.customTextInputStyle)
+            TextInputLayout(this, null, com.mazaady.mazaady.R.attr.customTextInputStyle)
         }
 
         textInputLayout.layoutParams = LinearLayout.LayoutParams(
@@ -268,7 +288,6 @@ class MainActivity : AppCompatActivity() {
         layoutParams.setMargins(margin, 0, margin, margin)
         textInputLayout.layoutParams = layoutParams
 
-        textInputLayout.id = R.id.textInputLayout_ID  // TextInputLayout
         textInputLayout.layoutParams = layoutParams
         // =========================================================================================
 
@@ -288,12 +307,14 @@ class MainActivity : AppCompatActivity() {
             textInputEditText.setPadding(padding, padding, padding, padding)
             textInputLayout.addView(textInputEditText)
         } else {
-            val autoCompleteTextView = AutoCompleteTextView(this, null, R.style.Base_Theme_Mazaady)
+            val autoCompleteTextView =
+                AutoCompleteTextView(this, null, R.style.Base_Theme_Mazaady)
             autoCompleteTextView.layoutParams = params
             autoCompleteTextView.hint = hintText
 
             val padding = resources.getDimension(R.dimen.text_padding).toInt()
-            val paddingTop = resources.getDimension(R.dimen.text_padding_top).toInt()
+            val paddingTop =
+                resources.getDimension(R.dimen.text_padding_top).toInt()
             autoCompleteTextView.setPadding(padding, paddingTop, padding, padding)
             textInputLayout.addView(autoCompleteTextView)
         }
@@ -301,6 +322,21 @@ class MainActivity : AppCompatActivity() {
 
         return textInputLayout
     }
+
+    private fun createLinearLayout() :LinearLayout{
+        val parent = LinearLayout(this)
+        parent.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+
+        parent.orientation = LinearLayout.VERTICAL
+
+        parent.id = R.id.linearLayoutID
+
+        return parent
+    }
+
 
     companion object {
         private val TAG = MainActivity::class.simpleName
