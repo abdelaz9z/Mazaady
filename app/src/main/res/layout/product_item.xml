@@ -39,15 +39,15 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
                     android:id="@+id/imageButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="10dp"
                     android:background="@drawable/shape_circle"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
                     android:padding="10dp"
                     android:src="@drawable/baseline_favorite_24"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -55,13 +55,15 @@
 
                 <TextView
                     android:id="@+id/textView"
-                    android:layout_width="100dp"
+                    android:layout_width="67dp"
                     android:layout_height="wrap_content"
                     android:background="@drawable/background_title_left"
                     android:gravity="center"
                     android:padding="8dp"
                     android:text="مزاد مباشر"
                     android:textColor="@color/white"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@+id/imageView2"
                     app:layout_constraintEnd_toEndOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -79,7 +81,7 @@
             android:text="سيارة سريعة بى ام دابليو  حالته جديدة 2021 تصنيع"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView" />

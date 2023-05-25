@@ -21,6 +21,8 @@ import com.mazaady.mazaady.databinding.ActivityMainBinding
 import com.mazaady.mazaady.ui.AuctionDetailsActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlin.collections.set
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -29,7 +31,10 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
-    var b: Boolean = false
+    private lateinit var _view: View
+    private var _selectedId: Int = 0
+    private var _selected: Int = 0
+    private var _optionsChildHashMap: HashMap<Int, Int> = HashMap()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,26 +77,15 @@ class MainActivity : AppCompatActivity() {
                     binding.linearProgressIndicator.visibility = View.INVISIBLE
 
                     for (d in data) {
-                        setupTextInputLayout(d.slug, d.options)
+                        setupTextInputLayout(d.slug, d.options, d.id, false)
                     }
                 }
             }
         }
 
-        // Options
-        lifecycleScope.launch {
-            viewModel.options.collect {
-                val data = it?.data
-                if (data != null) {
-                    // visibility -> GONE
-                    binding.linearProgressIndicator.visibility = View.INVISIBLE
-
-                    for (d in data) {
-                        setupTextInputLayout(d.slug, d.options)
-                    }
-                }
-            }
-        }
+        // this test 1
+        // options lifecycle scope
+        optionsLifecycleScope()
     }
 
     /**
@@ -109,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         // choose the driver is not null
         assert(textInputLayout.editText != null)
         val searchableSpinner = SearchableSpinner(this)
-        searchableSpinner.windowTitle = getString(com.mazaady.mazaady.R.string.main_category)
+        searchableSpinner.windowTitle = getString(R.string.main_category)
 
         // Finding the Set of keys from
         // the HashMap
@@ -140,6 +134,7 @@ class MainActivity : AppCompatActivity() {
 
                             // remove all views before add view
                             binding.linearLayout.removeAllViews()
+                            _optionsChildHashMap.clear()
                             selected?.let { viewModel.getSubCategory(it) }
 
                             Log.e(TAG, "Selected (children): $selected")
@@ -147,13 +142,13 @@ class MainActivity : AppCompatActivity() {
                             Log.e(TAG, "Selected (sub-category -> options -> id): $selected")
                             selected?.let { viewModel.getOption(selected) }
 
-                            val hint = textInputLayout.hint.toString()
-                            if (hint == "brand") {
-                                val et = findViewById<LinearLayout>(R.id.linearLayoutID)
-                                et.removeAllViews()
-                            }
+                            _selectedId = textInputLayout.id
+                            _selected = selected!!
+                            _view = textInputLayout
 
-                            b = true
+                            // this test 2
+                            // options lifecycle scope
+//                            optionsLifecycleScope()
                         }
                     }
                 }
@@ -180,7 +175,7 @@ class MainActivity : AppCompatActivity() {
         // choose the driver is not null
         assert(textInputLayout.editText != null)
         val searchableSpinner = SearchableSpinner(this)
-        searchableSpinner.windowTitle = getString(com.mazaady.mazaady.R.string.main_category)
+        searchableSpinner.windowTitle = getString(R.string.main_category)
 
         // Finding the Set of keys from
         // the HashMap
@@ -230,27 +225,24 @@ class MainActivity : AppCompatActivity() {
      * @param hintText hintText
      * @param arrayList option
      */
-    private fun setupTextInputLayout(hintText: String, arrayList: List<Option>) {
-        val et = findViewById<LinearLayout>(R.id.linearLayoutID)
+    private fun setupTextInputLayout(
+        hintText: String,
+        arrayList: List<Option>,
+        id: Int,
+        options: Boolean
+    ) {
         val optionHashMap: HashMap<String, Int> = HashMap()
 
         for (option in arrayList) {
             optionHashMap[option.slug] = option.id
         }
 
-        val tInput1 = addTextInputLayout(hintText, arrayList)
-
-        if (b) {
-            et.addView(tInput1)
-            b = false
+        val tInput1 = addTextInputLayout(hintText, arrayList, id)
+        if (options) {
+            val indexOfChild = binding.linearLayout.indexOfChild(_view)
+            binding.linearLayout.addView(tInput1, indexOfChild + 1)
         } else {
-            if (hintText == "brand") {
-                binding.linearLayout.addView(tInput1)
-                val createLinearLayout = createLinearLayout()
-                binding.linearLayout.addView(createLinearLayout)
-            } else {
-                binding.linearLayout.addView(tInput1)
-            }
+            binding.linearLayout.addView(tInput1)
         }
 
         searchableSpinnerInitialization(tInput1, optionHashMap, false)
@@ -261,7 +253,11 @@ class MainActivity : AppCompatActivity() {
      *
      * @param hintText
      */
-    private fun addTextInputLayout(hintText: String, arrayList: List<Option>): TextInputLayout {
+    private fun addTextInputLayout(
+        hintText: String,
+        arrayList: List<Option>,
+        id: Int
+    ): TextInputLayout {
         // =========================================================================================
         // modify in form(TextInputLayout)
         // =========================================================================================
@@ -269,14 +265,14 @@ class MainActivity : AppCompatActivity() {
             LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
-        var textInputLayout: TextInputLayout = if (arrayList.isEmpty()) {
+        val textInputLayout: TextInputLayout = if (arrayList.isEmpty()) {
             TextInputLayout(
                 this,
                 null,
                 com.leo.searchablespinner.R.style.Base_Widget_AppCompat_EditText
             )
         } else {
-            TextInputLayout(this, null, com.mazaady.mazaady.R.attr.customTextInputStyle)
+            TextInputLayout(this, null, R.attr.customTextInputStyle)
         }
 
         textInputLayout.layoutParams = LinearLayout.LayoutParams(
@@ -288,7 +284,7 @@ class MainActivity : AppCompatActivity() {
         layoutParams.setMargins(margin, 0, margin, margin)
         textInputLayout.layoutParams = layoutParams
 
-        textInputLayout.layoutParams = layoutParams
+        textInputLayout.id = id
         // =========================================================================================
 
         // =========================================================================================
@@ -313,8 +309,7 @@ class MainActivity : AppCompatActivity() {
             autoCompleteTextView.hint = hintText
 
             val padding = resources.getDimension(R.dimen.text_padding).toInt()
-            val paddingTop =
-                resources.getDimension(R.dimen.text_padding_top).toInt()
+            val paddingTop = resources.getDimension(R.dimen.text_padding_top).toInt()
             autoCompleteTextView.setPadding(padding, paddingTop, padding, padding)
             textInputLayout.addView(autoCompleteTextView)
         }
@@ -323,20 +318,59 @@ class MainActivity : AppCompatActivity() {
         return textInputLayout
     }
 
-    private fun createLinearLayout() :LinearLayout{
-        val parent = LinearLayout(this)
-        parent.layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        )
-
-        parent.orientation = LinearLayout.VERTICAL
-
-        parent.id = R.id.linearLayoutID
-
-        return parent
+    private fun removeView(id: Int) {
+        Log.i(TAG, "removeView id: $id")
+        val textInputLayout: TextInputLayout = findViewById(id)
+        binding.linearLayout.removeView(textInputLayout)
     }
 
+    private fun optionsLifecycleScope(){
+        // Options
+        lifecycleScope.launch {
+            viewModel.options.collect {
+                val data = it?.data
+
+                // (options child != null) and (data size == 0)
+                val t = _optionsChildHashMap[_selectedId]
+                if (t != null && data?.size == 0) {
+                    removeView(t)
+                    _optionsChildHashMap.remove(_selectedId)
+                } else {
+                    // data is not empty
+                    if (data != null) {
+                        // visibility -> GONE
+                        binding.linearProgressIndicator.visibility = View.INVISIBLE
+
+                        for (d in data) {
+                            // this position is not null
+                            if (t != null) {
+
+                                val first = _optionsChildHashMap.keys.first()
+                                Log.i(TAG, "first: $first")
+                                if (first == _selectedId){
+                                    _optionsChildHashMap.forEach { (t, u) ->
+                                        Log.i(TAG, "t: $t, u: $u")
+                                        removeView(u)
+                                    }
+                                    _optionsChildHashMap.clear()
+                                    _optionsChildHashMap[_selectedId] = d.id
+                                    setupTextInputLayout(d.slug, d.options, d.id, true)
+                                }else{
+                                    removeView(t)
+                                    _optionsChildHashMap.remove(_selectedId)
+                                    _optionsChildHashMap[_selectedId] = d.id
+                                    setupTextInputLayout(d.slug, d.options, d.id, true)
+                                }
+                            } else {
+                                _optionsChildHashMap[_selectedId] = d.id
+                                setupTextInputLayout(d.slug, d.options, d.id, true)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     companion object {
         private val TAG = MainActivity::class.simpleName
