@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                                         removeView(u)
                                     }
                                     _optionsChildHashMap.clear()
-                                }else{
+                                } else {
                                     removeView(t)
                                     _optionsChildHashMap.remove(_selectedId)
                                 }
@@ -250,6 +250,7 @@ class MainActivity : AppCompatActivity() {
         options: Boolean
     ) {
         val optionHashMap: HashMap<String, Int> = HashMap()
+        optionHashMap["other"] = 0
 
         for (option in arrayList) {
             optionHashMap[option.slug] = option.id
@@ -342,7 +343,7 @@ class MainActivity : AppCompatActivity() {
         binding.linearLayout.removeView(textInputLayout)
     }
 
-    private fun optionsLifecycleScope(){
+    private fun optionsLifecycleScope() {
         // Options
         lifecycleScope.launch {
             viewModel.options.collect {
@@ -365,7 +366,7 @@ class MainActivity : AppCompatActivity() {
 
                                 val first = _optionsChildHashMap.keys.first()
                                 Log.i(TAG, "first: $first")
-                                if (first == _selectedId){
+                                if (first == _selectedId) {
                                     _optionsChildHashMap.forEach { (t, u) ->
                                         Log.i(TAG, "t: $t, u: $u")
                                         removeView(u)
@@ -373,7 +374,7 @@ class MainActivity : AppCompatActivity() {
                                     _optionsChildHashMap.clear()
                                     _optionsChildHashMap[_selectedId] = d.id
                                     setupTextInputLayout(d.slug, d.options, d.id, true)
-                                }else{
+                                } else {
                                     removeView(t)
                                     _optionsChildHashMap.remove(_selectedId)
                                     _optionsChildHashMap[_selectedId] = d.id
