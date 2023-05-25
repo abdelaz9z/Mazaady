@@ -149,6 +149,13 @@ class MainActivity : AppCompatActivity() {
                             // this test 2
                             // options lifecycle scope
 //                            optionsLifecycleScope()
+
+                            // (options child != null) and (data size == 0)
+                            val t = _optionsChildHashMap[_selectedId]
+                            if (t != null) {
+                                removeView(t)
+                                _optionsChildHashMap.remove(_selectedId)
+                            }
                         }
                     }
                 }
