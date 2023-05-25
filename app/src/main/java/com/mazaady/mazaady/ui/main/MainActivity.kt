@@ -151,11 +151,22 @@ class MainActivity : AppCompatActivity() {
 //                            optionsLifecycleScope()
 
                             // (options child != null) and (data size == 0)
-//                            val t = _optionsChildHashMap[_selectedId]
-//                            if (t != null) {
-//                                removeView(t)
-//                                _optionsChildHashMap.remove(_selectedId)
-//                            }
+                            val t = _optionsChildHashMap[_selectedId]
+                            if (t != null) {
+
+                                val first = _optionsChildHashMap.keys.first()
+                                Log.i(TAG, "first: $first")
+                                if (first == _selectedId) {
+                                    _optionsChildHashMap.forEach { (t, u) ->
+                                        Log.i(TAG, "t: $t, u: $u")
+                                        removeView(u)
+                                    }
+                                    _optionsChildHashMap.clear()
+                                }else{
+                                    removeView(t)
+                                    _optionsChildHashMap.remove(_selectedId)
+                                }
+                            }
                         }
                     }
                 }
