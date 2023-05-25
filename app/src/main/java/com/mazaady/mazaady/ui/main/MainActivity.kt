@@ -146,6 +146,12 @@ class MainActivity : AppCompatActivity() {
                             _selected = selected!!
                             _view = textInputLayout
 
+                            if (selected == 0) {
+                                val emptyList: List<Option> = listOf()
+                                val hint = textInputLayout.hint.toString()
+                                setupTextInputLayout("$hint-other", emptyList, 0, true)
+                            }
+
                             // this test 2
                             // options lifecycle scope
 //                            optionsLifecycleScope()
