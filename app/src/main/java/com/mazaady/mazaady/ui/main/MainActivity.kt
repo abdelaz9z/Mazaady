@@ -117,6 +117,7 @@ class MainActivity : AppCompatActivity() {
         // Creating an ArrayList of keys
         // by passing the keySet
         val listOfKeys = ArrayList(keySet)
+        listOfKeys.add("other")
 
         if (hashMap.size <= 0) {
             Log.i(TAG, "searchableSpinnerInitialization: is empty")
@@ -207,6 +208,7 @@ class MainActivity : AppCompatActivity() {
         // Creating an ArrayList of keys
         // by passing the keySet
         val listOfKeys = ArrayList(keySet)
+        listOfKeys.add("other")
 
         searchableSpinner.setSpinnerListItems(listOfKeys)
         searchableSpinner.onItemSelectListener =
