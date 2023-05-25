@@ -141,7 +141,6 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             Log.e(TAG, "Selected (sub-category -> options -> id): $selected")
                             selected?.let { viewModel.getOption(selected) }
-                            selected?.let { viewModel.getOption(selected) }
 
                             _selectedId = textInputLayout.id
                             _selected = selected!!
